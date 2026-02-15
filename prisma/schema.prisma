@@ -1,0 +1,419 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  CHILD
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
+
+enum ChoreFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  ONE_TIME
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+enum MessageType {
+  ANNOUNCEMENT
+  NOTE
+  DISCUSSION_TOPIC
+}
+
+enum AllowanceFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum PetCareType {
+  FEEDING
+  WALK
+  MEDICATION
+  GROOMING
+  VET
+}
+
+enum PetHealthRecordType {
+  VACCINE
+  VET_VISIT
+  MEDICATION
+  OTHER
+}
+
+model Household {
+  id         String   @id @default(cuid())
+  name       String
+  location   String?
+  timezone   String   @default("America/New_York")
+  kioskToken String?  @map("kiosk_token")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  members          Member[]
+  invitations      Invitation[]
+  calendarEvents   CalendarEvent[]
+  chores           Chore[]
+  recipes          Recipe[]
+  mealPlans        MealPlan[]
+  groceryItems     GroceryItem[]
+  messages         Message[]
+  budgetCategories BudgetCategory[]
+  expenses         Expense[]
+  vaultItems       VaultItem[]
+  pets             Pet[]
+
+  @@map("households")
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  googleId  String   @unique @map("google_id")
+  email     String
+  name      String
+  avatarUrl String?  @map("avatar_url")
+  color     String   @default("#4F46E5")
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  invitationsSent  Invitation[]     @relation("InvitedBy")
+  calendarEvents   CalendarEvent[]
+  choreAssignments ChoreAssignment[] @relation("AssignedTo")
+  choreCompletions ChoreAssignment[] @relation("CompletedBy")
+  recipesCreated   Recipe[]
+  groceryItems     GroceryItem[]
+  messages         Message[]
+  expenses         Expense[]
+  allowance        Allowance?
+  vaultDocuments   VaultDocument[]
+  petCareLogs      PetCareLog[]
+  defaultPetTasks  PetCareTask[]
+
+  @@map("members")
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  email     String
+  role      Role             @default(MEMBER)
+  status    InvitationStatus @default(PENDING)
+  createdAt DateTime         @default(now()) @map("created_at")
+  expiresAt DateTime         @map("expires_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  invitedById String @map("invited_by")
+  invitedBy   Member @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  @@map("invitations")
+}
+
+model CalendarEvent {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  startTime     DateTime @map("start_time")
+  endTime       DateTime @map("end_time")
+  allDay        Boolean  @default(false) @map("all_day")
+  recurrence    Json?
+  googleEventId String?  @map("google_event_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  memberId String? @map("member_id")
+  member   Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@map("calendar_events")
+}
+
+model Chore {
+  id            String         @id @default(cuid())
+  title         String
+  description   String?
+  frequency     ChoreFrequency
+  rotationOrder Json?          @map("rotation_order")
+  points        Int?
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  assignments ChoreAssignment[]
+
+  @@map("chores")
+}
+
+model ChoreAssignment {
+  id          String    @id @default(cuid())
+  dueDate     DateTime  @map("due_date") @db.Date
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  choreId String @map("chore_id")
+  chore   Chore  @relation(fields: [choreId], references: [id], onDelete: Cascade)
+
+  memberId String @map("member_id")
+  member   Member @relation("AssignedTo", fields: [memberId], references: [id], onDelete: Cascade)
+
+  completedById String? @map("completed_by")
+  completedBy   Member? @relation("CompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
+
+  @@map("chore_assignments")
+}
+
+model Recipe {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  ingredients  Json
+  instructions String?
+  tags         String[]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  createdById String @map("created_by")
+  createdBy   Member @relation(fields: [createdById], references: [id])
+
+  mealPlans MealPlan[]
+
+  @@map("recipes")
+}
+
+model MealPlan {
+  id          String   @id @default(cuid())
+  date        DateTime @db.Date
+  mealType    MealType @map("meal_type")
+  customTitle String?  @map("custom_title")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  recipeId String? @map("recipe_id")
+  recipe   Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+
+  @@unique([householdId, date, mealType])
+  @@map("meal_plans")
+}
+
+model GroceryItem {
+  id        String   @id @default(cuid())
+  name      String
+  quantity  String?
+  category  String?
+  checked   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  addedById String @map("added_by")
+  addedBy   Member @relation(fields: [addedById], references: [id])
+
+  @@map("grocery_items")
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  content   String
+  type      MessageType @default(NOTE)
+  pinned    Boolean     @default(false)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  authorId String @map("author_id")
+  author   Member @relation(fields: [authorId], references: [id])
+
+  @@map("messages")
+}
+
+model BudgetCategory {
+  id           String   @id @default(cuid())
+  name         String
+  monthlyLimit Decimal? @map("monthly_limit") @db.Decimal(10, 2)
+  color        String   @default("#6B7280")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  expenses Expense[]
+
+  @@map("budget_categories")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Decimal  @db.Decimal(10, 2)
+  description String
+  date        DateTime @db.Date
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  categoryId String         @map("category_id")
+  category   BudgetCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  memberId String @map("member_id")
+  member   Member @relation(fields: [memberId], references: [id])
+
+  @@map("expenses")
+}
+
+model Allowance {
+  id        String             @id @default(cuid())
+  amount    Decimal            @db.Decimal(10, 2)
+  frequency AllowanceFrequency
+  balance   Decimal            @default(0) @db.Decimal(10, 2)
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  memberId String @unique @map("member_id")
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("allowances")
+}
+
+model VaultItem {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  category   String
+  restricted Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  documents VaultDocument[]
+
+  @@map("vault_items")
+}
+
+model VaultDocument {
+  id        String   @id @default(cuid())
+  fileName  String   @map("file_name")
+  fileUrl   String   @map("file_url")
+  fileType  String   @map("file_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vaultItemId String    @map("vault_item_id")
+  vaultItem   VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
+
+  uploadedById String @map("uploaded_by")
+  uploadedBy   Member @relation(fields: [uploadedById], references: [id])
+
+  @@map("vault_documents")
+}
+
+model Pet {
+  id        String   @id @default(cuid())
+  name      String
+  species   String
+  breed     String?
+  photoUrl  String?  @map("photo_url")
+  birthday  DateTime? @db.Date
+  weight    Decimal?  @db.Decimal(5, 1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  householdId String    @map("household_id")
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  careTasks     PetCareTask[]
+  healthRecords PetHealthRecord[]
+
+  @@map("pets")
+}
+
+model PetCareTask {
+  id       String      @id @default(cuid())
+  type     PetCareType
+  title    String
+  schedule Json?
+  dosage   String?
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  petId String @map("pet_id")
+  pet   Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  defaultMemberId String? @map("default_member_id")
+  defaultMember   Member? @relation(fields: [defaultMemberId], references: [id], onDelete: SetNull)
+
+  logs PetCareLog[]
+
+  @@map("pet_care_tasks")
+}
+
+model PetCareLog {
+  id          String   @id @default(cuid())
+  completedAt DateTime @default(now()) @map("completed_at")
+  notes       String?
+  durationMin Int?     @map("duration_min")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  taskId String      @map("task_id")
+  task   PetCareTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  memberId String @map("member_id")
+  member   Member @relation(fields: [memberId], references: [id])
+
+  @@map("pet_care_logs")
+}
+
+model PetHealthRecord {
+  id        String              @id @default(cuid())
+  type      PetHealthRecordType
+  title     String
+  date      DateTime            @db.Date
+  notes     String?
+  fileUrl   String?             @map("file_url")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  petId String @map("pet_id")
+  pet   Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("pet_health_records")
+}
