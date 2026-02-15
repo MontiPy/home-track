@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
 
   // Filter pet care tasks to only those not yet done today
   const pendingPetTasks = petCareTasks.filter(
-    (task) => task.logs.length === 0
+    (task: { logs: unknown[] }) => task.logs.length === 0
   );
 
   return NextResponse.json({
@@ -125,13 +125,21 @@ export async function GET(request: NextRequest) {
     chores,
     meals,
     announcements,
-    petCareTasks: pendingPetTasks.map((task) => ({
-      id: task.id,
-      type: task.type,
-      title: task.title,
-      pet: task.pet,
-      defaultMember: task.defaultMember,
-    })),
+    petCareTasks: pendingPetTasks.map(
+      (task: {
+        id: string;
+        type: string;
+        title: string;
+        pet: { id: string; name: string; species: string };
+        defaultMember: { id: string; name: string } | null;
+      }) => ({
+        id: task.id,
+        type: task.type,
+        title: task.title,
+        pet: task.pet,
+        defaultMember: task.defaultMember,
+      })
+    ),
     weather,
   });
 }

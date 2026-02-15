@@ -31,7 +31,9 @@ export async function GET() {
 
   const now = new Date();
 
-  const pendingTasks = tasks.filter((task) => {
+  type TaskWithLogs = typeof tasks[number];
+
+  const pendingTasks = tasks.filter((task: TaskWithLogs) => {
     const lastLog = task.logs[0];
 
     // If never logged, it's pending
@@ -50,7 +52,7 @@ export async function GET() {
     return now >= nextDue;
   });
 
-  const result = pendingTasks.map((task) => ({
+  const result = pendingTasks.map((task: TaskWithLogs) => ({
     id: task.id,
     type: task.type,
     title: task.title,

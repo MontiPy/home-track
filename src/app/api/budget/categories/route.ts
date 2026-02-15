@@ -34,9 +34,9 @@ export async function GET() {
     orderBy: { name: "asc" },
   });
 
-  const result = categories.map((cat) => {
+  const result = categories.map((cat: { id: string; name: string; monthlyLimit: unknown; color: string; householdId: string; createdAt: Date; updatedAt: Date; expenses: { amount: unknown }[] }) => {
     const spent = cat.expenses.reduce(
-      (sum, exp) => sum + Number(exp.amount),
+      (sum: number, exp: { amount: unknown }) => sum + Number(exp.amount),
       0
     );
     return {

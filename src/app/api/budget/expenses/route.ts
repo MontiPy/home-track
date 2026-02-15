@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
     orderBy: { date: "desc" },
   });
 
-  const result = expenses.map((exp) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = expenses.map((exp: any) => ({
     id: exp.id,
     amount: Number(exp.amount),
     description: exp.description,

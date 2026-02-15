@@ -26,7 +26,8 @@ export async function GET() {
     orderBy: { member: { name: "asc" } },
   });
 
-  const result = allowances.map((a) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = allowances.map((a: any) => ({
     id: a.id,
     amount: Number(a.amount),
     frequency: a.frequency,

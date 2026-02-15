@@ -31,13 +31,12 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
-  const result = pets.map((pet) => {
-    const latestLog = pet.careTasks
-      .flatMap((t) => t.logs)
-      .sort(
-        (a, b) =>
-          new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
-      )[0] || null;
+  const result = pets.map((pet: typeof pets[number]) => {
+    const allLogs = pet.careTasks.flatMap((t: typeof pet.careTasks[number]) => t.logs);
+    const latestLog = allLogs.sort(
+      (a: typeof allLogs[number], b: typeof allLogs[number]) =>
+        new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+    )[0] || null;
 
     return {
       id: pet.id,
