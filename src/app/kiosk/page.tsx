@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import {
@@ -118,6 +118,23 @@ function WeatherIcon({ condition, className }: { condition: string; className?: 
 }
 
 export default function KioskPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-gray-950 text-white">
+          <div className="text-center">
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-blue-400" />
+            <p className="mt-4 text-lg text-gray-400">Loading kiosk...</p>
+          </div>
+        </div>
+      }
+    >
+      <KioskContent />
+    </Suspense>
+  );
+}
+
+function KioskContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 

@@ -51,18 +51,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Find Google account ID from token
-  const googleId = (session as Record<string, unknown>).googleId as string | undefined;
-
+  // Use email as a stable Google identifier for household creation
   const household = await db.household.create({
     data: {
       name,
       location: location || null,
       members: {
         create: {
-          googleId: googleId || session.user.email,
-          email: session.user.email,
-          name: session.user.name || session.user.email,
+          googleId: session.user.email!,
+          email: session.user.email!,
+          name: session.user.name || session.user.email!,
           avatarUrl: session.user.image,
           role: "ADMIN",
         },
