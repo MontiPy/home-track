@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useHouseholdContext } from "@/components/providers/household-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -75,10 +76,16 @@ const FREQUENCY_COLORS: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 export default function ChoresPage() {
+  const { members: contextMembers } = useHouseholdContext();
   const [chores, setChores] = useState<Chore[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const members: Member[] = (contextMembers || []).map((m) => ({
+    id: m.id,
+    name: m.name,
+    color: m.color,
+  }));
 
   // Add chore form
   const [showAddForm, setShowAddForm] = useState(false);
@@ -101,10 +108,9 @@ export default function ChoresPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [choresRes, assignmentsRes, householdRes] = await Promise.all([
+      const [choresRes, assignmentsRes] = await Promise.all([
         fetch("/api/chores"),
         fetch("/api/chores/assignments"),
-        fetch("/api/household"),
       ]);
 
       if (choresRes.ok) {
@@ -112,10 +118,6 @@ export default function ChoresPage() {
       }
       if (assignmentsRes.ok) {
         setAssignments(await assignmentsRes.json());
-      }
-      if (householdRes.ok) {
-        const household = await householdRes.json();
-        setMembers(household.members || []);
       }
     } catch (error) {
       console.error("Failed to fetch chores data:", error);

@@ -151,6 +151,7 @@ model CalendarEvent {
   memberId String? @map("member_id")
   member   Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
 
+  @@index([householdId, startTime])
   @@map("calendar_events")
 }
 
@@ -187,6 +188,8 @@ model ChoreAssignment {
   completedById String? @map("completed_by")
   completedBy   Member? @relation("CompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
 
+  @@index([choreId, dueDate, completedAt])
+  @@index([memberId, dueDate])
   @@map("chore_assignments")
 }
 
@@ -244,6 +247,7 @@ model GroceryItem {
   addedById String @map("added_by")
   addedBy   Member @relation(fields: [addedById], references: [id])
 
+  @@index([householdId, checked])
   @@map("grocery_items")
 }
 
@@ -261,6 +265,7 @@ model Message {
   authorId String @map("author_id")
   author   Member @relation(fields: [authorId], references: [id])
 
+  @@index([householdId, createdAt])
   @@map("messages")
 }
 
@@ -297,6 +302,8 @@ model Expense {
   memberId String @map("member_id")
   member   Member @relation(fields: [memberId], references: [id])
 
+  @@index([householdId, date])
+  @@index([categoryId, date])
   @@map("expenses")
 }
 
@@ -400,6 +407,7 @@ model PetCareLog {
   memberId String @map("member_id")
   member   Member @relation(fields: [memberId], references: [id])
 
+  @@index([taskId, completedAt])
   @@map("pet_care_logs")
 }
 

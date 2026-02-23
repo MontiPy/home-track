@@ -23,6 +23,8 @@ export default async function DashboardLayout({
       userAvatar={session.user.image}
       userColor={session.user.memberColor}
       userRole={session.user.role}
+      memberId={session.user.memberId}
+      householdId={session.user.householdId}
     >
       {children}
     </AppShell>

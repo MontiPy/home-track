@@ -33,7 +33,9 @@ export async function GET(request: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(recipes);
+  return NextResponse.json(recipes, {
+    headers: { "Cache-Control": "private, max-age=60" },
+  });
 }
 
 export async function POST(request: NextRequest) {

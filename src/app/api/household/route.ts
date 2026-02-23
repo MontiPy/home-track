@@ -24,7 +24,9 @@ export async function GET() {
     },
   });
 
-  return NextResponse.json(household);
+  return NextResponse.json(household, {
+    headers: { "Cache-Control": "private, max-age=60" },
+  });
 }
 
 export async function POST(request: NextRequest) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useHouseholdContext } from "@/components/providers/household-context";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ const FILTER_TABS: { key: MessageType | "ALL"; label: string }[] = [
 ];
 
 export default function MessagesPage() {
+  const { memberId, role } = useHouseholdContext();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<MessageType | "ALL">("ALL");
@@ -80,8 +82,8 @@ export default function MessagesPage() {
   const [newContent, setNewContent] = useState("");
   const [newType, setNewType] = useState<MessageType>("NOTE");
   const [submitting, setSubmitting] = useState(false);
-  const [currentMemberId, setCurrentMemberId] = useState<string | null>(null);
-  const [currentRole, setCurrentRole] = useState<string | null>(null);
+  const currentMemberId = memberId;
+  const currentRole = role;
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -100,18 +102,6 @@ export default function MessagesPage() {
       setLoading(false);
     }
   }, [filter]);
-
-  useEffect(() => {
-    // Get current user info from session
-    fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((s) => {
-        if (s?.user) {
-          setCurrentMemberId(s.user.memberId || null);
-          setCurrentRole(s.user.role || null);
-        }
-      });
-  }, []);
 
   useEffect(() => {
     setLoading(true);

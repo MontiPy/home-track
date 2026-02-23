@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useHouseholdContext } from "@/components/providers/household-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,11 +48,11 @@ interface Allowance {
 }
 
 export default function BudgetPage() {
+  const { role: userRole, members: contextMembers } = useHouseholdContext();
   const [categories, setCategories] = useState<BudgetCategory[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [allowances, setAllowances] = useState<Allowance[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
 
   // Category form
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -77,9 +78,10 @@ export default function BudgetPage() {
   const [allowanceAmount, setAllowanceAmount] = useState("");
   const [allowanceFrequency, setAllowanceFrequency] = useState("WEEKLY");
   const [allowanceBalance, setAllowanceBalance] = useState("");
-  const [childMembers, setChildMembers] = useState<
-    { id: string; name: string }[]
-  >([]);
+
+  const childMembers = (contextMembers || [])
+    .filter((m) => m.role === "CHILD")
+    .map((m) => ({ id: m.id, name: m.name }));
 
   const currentMonth = format(new Date(), "yyyy-MM");
 
@@ -111,34 +113,9 @@ export default function BudgetPage() {
     }
   }, [currentMonth]);
 
-  const fetchHousehold = useCallback(async () => {
-    try {
-      const res = await fetch("/api/household");
-      if (res.ok) {
-        const data = await res.json();
-        const children = data.members?.filter(
-          (m: { role: string }) => m.role === "CHILD"
-        );
-        setChildMembers(children || []);
-      }
-    } catch {
-      // silently handle
-    }
-  }, []);
-
   useEffect(() => {
-    // Get role from session via a simple check
-    fetch("/api/budget/categories").then((res) => {
-      if (res.status === 403) {
-        setUserRole("CHILD");
-      } else {
-        setUserRole("ADMIN");
-      }
-    });
-
     fetchData();
-    fetchHousehold();
-  }, [fetchData, fetchHousehold]);
+  }, [fetchData]);
 
   if (userRole === "CHILD") {
     return (

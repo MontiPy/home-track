@@ -54,7 +54,9 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    headers: { "Cache-Control": "private, max-age=60" },
+  });
 }
 
 export async function POST(request: NextRequest) {
