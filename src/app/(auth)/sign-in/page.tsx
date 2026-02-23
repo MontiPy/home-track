@@ -8,7 +8,7 @@ export default function SignInPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted p-4">
       <div className="w-full max-w-sm space-y-8 text-center">
         <div>
-          <h1 className="text-3xl font-bold text-primary">Home Track</h1>
+          <h1 className="text-3xl font-bold text-primary">Family Hub</h1>
           <p className="mt-2 text-muted-foreground">
             Your family organization hub
           </p>
@@ -44,7 +44,7 @@ export default function SignInPage() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          By signing in, you agree to use Home Track for your household
+          By signing in, you agree to use Family Hub for your household
           organization.
         </p>
       </div>

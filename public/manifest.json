@@ -1,6 +1,6 @@
 {
-  "name": "Home Track",
-  "short_name": "Home Track",
+  "name": "Family Hub",
+  "short_name": "Family Hub",
   "description": "Family organization hub for your household",
   "start_url": "/",
   "display": "standalone",

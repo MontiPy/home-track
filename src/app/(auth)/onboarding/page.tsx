@@ -51,7 +51,7 @@ export default function OnboardingPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to Home Track</CardTitle>
+          <CardTitle className="text-2xl">Welcome to Family Hub</CardTitle>
           <CardDescription>
             Set up your household to get started
           </CardDescription>

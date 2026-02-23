@@ -10,13 +10,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Home Track",
+  title: "Family Hub",
   description: "Family organization hub for your household",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Home Track",
+    title: "Family Hub",
   },
 };
 

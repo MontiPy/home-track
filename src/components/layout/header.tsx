@@ -28,7 +28,7 @@ export function Header({
       </button>
 
       <div className="lg:hidden text-lg font-bold text-primary">
-        Home Track
+        Family Hub
       </div>
 
       <div className="flex items-center gap-3">

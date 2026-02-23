@@ -62,7 +62,7 @@ export function Sidebar({ open, onClose, userRole }: SidebarProps) {
       >
         <div className="flex h-16 items-center justify-between px-4 border-b border-border">
           <Link href="/" className="text-xl font-bold text-primary">
-            Home Track
+            Family Hub
           </Link>
           <button
             onClick={onClose}
