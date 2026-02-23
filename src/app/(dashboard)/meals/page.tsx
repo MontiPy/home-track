@@ -105,7 +105,8 @@ export default function MealsPage() {
   function getMeal(date: Date, mealType: MealType): MealPlan | undefined {
     const dateStr = format(date, "yyyy-MM-dd");
     return meals.find((m) => {
-      const mealDate = format(new Date(m.date), "yyyy-MM-dd");
+      // Extract date portion directly to avoid UTC→local timezone shift
+      const mealDate = m.date.substring(0, 10);
       return mealDate === dateStr && m.mealType === mealType;
     });
   }
