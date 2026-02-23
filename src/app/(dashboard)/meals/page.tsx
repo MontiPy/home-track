@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -259,9 +259,8 @@ export default function MealsPage() {
 
               {/* Meal type rows */}
               {MEAL_TYPES.map((mt) => (
-                <>
+                <Fragment key={mt.value}>
                   <div
-                    key={`label-${mt.value}`}
                     className="flex items-center justify-center p-2 text-xs font-medium text-muted-foreground"
                   >
                     {mt.label}
@@ -299,7 +298,7 @@ export default function MealsPage() {
                       </div>
                     );
                   })}
-                </>
+                </Fragment>
               ))}
             </div>
           </div>
