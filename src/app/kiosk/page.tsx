@@ -209,13 +209,16 @@ function KioskContent() {
   async function markChoreDone(assignmentId: string) {
     if (!token) return;
     try {
-      const res = await fetch(
-        `/api/chores/assignments/${assignmentId}/complete`,
-        { method: "POST" }
-      );
+      const res = await fetch(`/api/kiosk/action?token=${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "complete-chore", assignmentId }),
+      });
       if (res.ok) {
         setActionMessage("Chore marked as done!");
         fetchData();
+      } else {
+        setActionMessage("Failed to mark chore done");
       }
     } catch {
       setActionMessage("Failed to mark chore done");
@@ -225,12 +228,17 @@ function KioskContent() {
   async function logPetFeeding(taskId: string) {
     if (!token) return;
     try {
-      setActionMessage(`Pet care logged!`);
-      // Refresh to reflect the change
-      fetchData();
-      // Note: This would need a dedicated kiosk endpoint for pet care logging
-      // For now, show feedback and refresh
-      void taskId;
+      const res = await fetch(`/api/kiosk/action?token=${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "log-pet-care", taskId }),
+      });
+      if (res.ok) {
+        setActionMessage("Pet care logged!");
+        fetchData();
+      } else {
+        setActionMessage("Failed to log pet care");
+      }
     } catch {
       setActionMessage("Failed to log pet care");
     }
