@@ -5,6 +5,7 @@ export const mockSession = {
     email: 'test@example.com',
     name: 'Test User',
     image: 'https://example.com/avatar.jpg',
+    googleId: '123456789',
     memberId: 'member-1',
     householdId: 'household-1',
     role: 'ADMIN',

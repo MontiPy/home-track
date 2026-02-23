@@ -80,6 +80,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token }) {
+      if (token.googleId) {
+        session.user.googleId = token.googleId as string;
+      }
       if (token.memberId) {
         session.user.memberId = token.memberId as string;
         session.user.householdId = token.householdId as string;

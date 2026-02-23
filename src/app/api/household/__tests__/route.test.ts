@@ -38,6 +38,7 @@ describe('POST /api/household', () => {
         email: 'new@example.com',
         name: 'New User',
         image: null,
+        googleId: '987654321',
       },
     })
   })

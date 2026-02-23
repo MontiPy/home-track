@@ -29,7 +29,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user?.email || !session.user.googleId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -51,16 +51,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Use email as a stable Google identifier for household creation
   const household = await db.household.create({
     data: {
       name,
       location: location || null,
       members: {
         create: {
-          googleId: session.user.email!,
-          email: session.user.email!,
-          name: session.user.name || session.user.email!,
+          googleId: session.user.googleId,
+          email: session.user.email,
+          name: session.user.name || session.user.email,
           avatarUrl: session.user.image,
           role: "ADMIN",
         },
