@@ -18,8 +18,12 @@ export async function getWeather(
   }
 
   try {
-    const encodedLocation = encodeURIComponent(location);
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodedLocation}&appid=${apiKey}&units=imperial`;
+    // Detect US ZIP codes (5 digits) and use the zip parameter
+    const isZipCode = /^\d{5}$/.test(location.trim());
+    const query = isZipCode
+      ? `zip=${location.trim()},US`
+      : `q=${encodeURIComponent(location)}`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=imperial`;
 
     const response = await fetch(url, { next: { revalidate: 600 } });
 
