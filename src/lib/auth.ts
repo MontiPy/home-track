@@ -25,10 +25,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (existingMember) return true;
 
-      // Check for pending invitation
+      // Check for pending invitation (case-insensitive email match)
       const invitation = await db.invitation.findFirst({
         where: {
-          email: user.email!,
+          email: { equals: user.email!, mode: "insensitive" },
           status: "PENDING",
           expiresAt: { gt: new Date() },
         },

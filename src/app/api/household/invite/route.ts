@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { email, role = "MEMBER" } = body;
+  const { email: rawEmail, role = "MEMBER" } = body;
+  const email = rawEmail?.trim().toLowerCase();
 
   if (!email) {
     return NextResponse.json(
@@ -41,7 +42,10 @@ export async function POST(request: NextRequest) {
 
   // Check if member already exists
   const existingMember = await db.member.findFirst({
-    where: { email, householdId: session.user.householdId },
+    where: {
+      email: { equals: email, mode: "insensitive" },
+      householdId: session.user.householdId,
+    },
   });
 
   if (existingMember) {
